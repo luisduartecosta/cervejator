@@ -1,30 +1,38 @@
-#include <Stepper.h>
+#include <AccelStepper.h>
 
-const int stepsPerRevolution = 200; 
-Stepper motorCopo(stepsPerRevolution, 2, 3, 4, 5);   
-Stepper motorGarrafa(stepsPerRevolution, 6, 7, 8, 9); 
+#define ENABLE_1_GARRAFA 10
+#define ENABLE_2_GARRAFA 11
+
+AccelStepper motorCopo(4, 2, 3, 4, 5);   
+AccelStepper motorGarrafa(4, 6, 7, 8, 9); 
 
 int stepCount = 0;
 
 void setup() {
-  // initialize the serial port:
+  pinMode(ENABLE_1_GARRAFA,OUTPUT);
+  pinMode(ENABLE_2_GARRAFA,OUTPUT);
+  
   motorCopo.setSpeed(200);
   motorGarrafa.setSpeed(200);
-  pinMode(10,OUTPUT);
-  pinMode(11,OUTPUT);
-  Serial.begin(9600);
+  
+  motorCopo.setMaxSpeed(200.0);
+  motorCopo.setAcceleration(30.0);
+  motorCopo.moveTo(-2000);
+  
+  motorGarrafa.setMaxSpeed(200.0);
+  motorGarrafa.setAcceleration(30.0);
+  motorGarrafa.moveTo(-2000);
+
   delay(1000);
+  
+  digitalWrite(LED_STATUS, LOW);
 }
 
 void loop() {
-  digitalWrite(11, HIGH);  // Enable 1 do driver
-  digitalWrite(10, HIGH);  // Enable 2 do driver
-  // step one step:
-  //motorCopo.step(40);
-  delay(10);
-  motorGarrafa.step(-80);
-  Serial.print("steps:" );
-  Serial.println(stepCount);
-  stepCount++;
-  delay(30);
+  digitalWrite(ENABLE_1_GARRAFA, HIGH);  // Enable 1 do driver
+  digitalWrite(ENABLE_2_GARRAFA, HIGH);  // Enable 2 do driver
+  
+  motorGarrafa.run();
+  motorCopo.run();
+  
 }
