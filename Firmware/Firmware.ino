@@ -2,6 +2,7 @@
 
 #define ENABLE_1_GARRAFA 10
 #define ENABLE_2_GARRAFA 11
+#define LED_STATUS       53
 
 AccelStepper motorCopo(4, 2, 3, 4, 5);   
 AccelStepper motorGarrafa(4, 6, 7, 8, 9); 
@@ -11,6 +12,7 @@ int stepCount = 0;
 void setup() {
   pinMode(ENABLE_1_GARRAFA,OUTPUT);
   pinMode(ENABLE_2_GARRAFA,OUTPUT);
+  pinMode(LED_STATUS,OUTPUT);
   
   motorCopo.setSpeed(200);
   motorGarrafa.setSpeed(200);
@@ -35,4 +37,7 @@ void loop() {
   motorGarrafa.run();
   motorCopo.run();
   
+  if (!motorGarrafa.distanceToGo() && !motorCopo.distanceToGo()) {
+      digitalWrite(LED_STATUS, HIGH);
+  }
 }
