@@ -55,7 +55,7 @@ void loop() {
     //Serial.write("servindo... -> Copo:\n");
   }
   
-  if (!serving && !digitalRead(BTN_3)) {
+  if (!serving && !digitalRead(BTN_1)) {
       motorCopo.move(walkCopo);
       motorGarrafa.move(walkGarrafa);
       serving = true;
