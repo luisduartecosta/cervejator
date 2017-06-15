@@ -21,6 +21,10 @@ int loopsAposInverter = 0;
 float walkGarrafa = 20000.0;
 float walkCopo = 6000.0;
 
+void beep(int freq, int dur) {
+  tone(BUZZER,freq,dur);
+}
+
 void setup() {
   pinMode(ENABLE_1_GARRAFA,OUTPUT);
   pinMode(ENABLE_2_GARRAFA,OUTPUT);
@@ -65,7 +69,7 @@ void loop() {
       walkGarrafa = -walkGarrafa;
       walkCopo = -walkCopo;
       loopsAposInverter = 200;
-      tone(BUZZER,800,200);
+      beep(800,200);
       delay(500);
   }
 
