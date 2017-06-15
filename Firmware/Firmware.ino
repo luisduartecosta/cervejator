@@ -8,7 +8,7 @@
 #include "Beep.h"
 #include "Endstop.h"
 
-#define BOTTLE_EXCURSION 20000.0
+#define BOTTLE_EXCURSION 15500.0
 #define GLASS_EXCURSION  5000.0
 
 AccelStepper motorCopo(4, 2, 3, 4, 5);
@@ -18,8 +18,8 @@ int stepCount = 0;
 bool serving = false;
 int loopsAposInverter = 0;
 
-float walkGarrafa = 20000.0;
-float walkCopo = 6000.0;
+float walkGarrafa = BOTTLE_EXCURSION;
+float walkCopo = GLASS_EXCURSION;
 
 AxisState glassState = UNSET;
 AxisState lastGlassState = UNSET;
