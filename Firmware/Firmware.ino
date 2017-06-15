@@ -1,5 +1,7 @@
 #include <AccelStepper.h>
+
 #include "Pins.h"
+#include "Beep.h"
 
 AccelStepper motorCopo(4, 2, 3, 4, 5);
 AccelStepper motorGarrafa(4, 6, 7, 8, 9);
@@ -11,9 +13,6 @@ int loopsAposInverter = 0;
 float walkGarrafa = 20000.0;
 float walkCopo = 6000.0;
 
-void beep(int freq, int dur) {
-  tone(BUZZER,freq,dur);
-}
 
 void setup() {
   pinMode(ENABLE_1_GARRAFA,OUTPUT);
