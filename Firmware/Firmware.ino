@@ -21,6 +21,11 @@ int loopsAposInverter = 0;
 float walkGarrafa = BOTTLE_EXCURSION;
 float walkCopo = GLASS_EXCURSION;
 
+#ifdef DEBUG_SERIAL
+long glassPositionSnapshot;
+long bottlePositionSnapshot;
+#endif
+
 AxisState glassState = UNSET;
 AxisState lastGlassState = UNSET;
 AxisState bottleState = UNSET;
@@ -93,11 +98,33 @@ void loop() {
       motorCopo.move(walkCopo);
       motorGarrafa.move(walkGarrafa);
       serving = true;
+      delay(100);
+      return;
   }
+  
+  #ifdef DEBUG_SERIAL
+  if (serving && !digitalRead(BTN_2) ) {
+      motorCopo.moveTo(motorCopo.currentPosition());
+      glassPositionSnapshot = motorCopo.currentPosition();
+  }
+  
+  if (serving && !digitalRead(BTN_1) ) {
+      motorGarrafa.moveTo(motorGarrafa.currentPosition());
+      bottlePositionSnapshot = motorGarrafa.currentPosition();
+  }
+  #endif
 
   if (!motorGarrafa.distanceToGo() && !motorCopo.distanceToGo()) {
       serving = false;
+      #if DEBUG_SERIAL
+      Serial.print("Glass position:");
+      Serial.print(glassPositionSnapshot,DEC);
+      Serial.print(" Bottle position:");
+      Serial.print(bottlePositionSnapshot,DEC);
+      Serial.println("Paused");
+      #endif
   }
+  
 
   if (!digitalRead(BTN_2) && !serving && !loopsAposInverter) {
       walkGarrafa = -walkGarrafa;
