@@ -4,6 +4,9 @@
 #include "Beep.h"
 #include "Endstop.h"
 
+#define BOTTLE_EXCURSION 19000.0
+#define GLASS_EXCURSION  5000.0
+
 AccelStepper motorCopo(4, 2, 3, 4, 5);
 AccelStepper motorGarrafa(4, 6, 7, 8, 9);
 
@@ -41,7 +44,8 @@ void loop() {
   digitalWrite(ENABLE_1_GARRAFA, HIGH);  // Enable 1 do driver
   digitalWrite(ENABLE_2_GARRAFA, HIGH);  // Enable 2 do driver
 
-  digitalWrite(LED_STATUS, !serving);
+  limitExcursion(motorCopo, ENDSTOP_GLASS, GLASS_EXCURSION);
+  limitExcursion(motorGarrafa, ENDSTOP_BOTTLE, BOTTLE_EXCURSION);
 
   if (serving) {
     motorGarrafa.run();

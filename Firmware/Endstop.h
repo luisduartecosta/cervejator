@@ -13,6 +13,7 @@ enum AxisState {
 };
 
 void resetPosition(AccelStepper &motor, const int endstopPin, const float setupDistance, const float bounceDistance, AxisState &state, AxisState &lastState );
+void limitExcursion(AccelStepper &motor, const int endstopPin, const float maxPosition);
 
 void resetPosition(AccelStepper &motor, const int endstopPin, const float setupDistance, const float bounceDistance, AxisState &state, AxisState &lastState )
 {
@@ -61,5 +62,25 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
           }
       }
   }
+}
+
+void limitExcursion(AccelStepper &motor, const int endstopPin, const float maxPosition)
+{
+    if (motor.currentPosition() < 0 )
+    {
+        motor.moveTo(0.0f);
+    }
+
+    if (motor.targetPosition() > maxPosition )
+    {
+        motor.moveTo(maxPosition);
+        beep(640,100);
+    }
+
+    if (!digitalRead(endstopPin))
+    {
+        motor.moveTo(motor.currentPosition());
+        beep(440,200);
+    }
 }
 #endif
