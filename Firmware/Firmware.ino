@@ -1,7 +1,7 @@
 #include <AccelStepper.h>
 
 //#define DEBUG_BEEP
-#define DEBUG_SERIAL
+//#define DEBUG_SERIAL
 
 
 #include "Pins.h"
@@ -58,12 +58,12 @@ void setup() {
   digitalWrite(LED_RED, LOW);
   while ( glassState != READY || bottleState != READY )
   {
-    resetPosition(motorCopo,ENDSTOP_GLASS,-walkCopo,500,glassState,lastGlassState);
-    resetPosition(motorGarrafa,ENDSTOP_BOTTLE,-walkGarrafa,500,bottleState,lastBottleState);
+    resetPosition(motorCopo,ENDSTOP_GLASS,-(GLASS_EXCURSION),500,glassState,lastGlassState);
+    resetPosition(motorGarrafa,ENDSTOP_BOTTLE,-(BOTTLE_EXCURSION + 4000),500,bottleState,lastBottleState);
   }
   digitalWrite(LED_RED, (glassState == READY));
   digitalWrite(LED_GREEN, (bottleState == READY));
-  
+
   #ifdef DEBUG_SERIAL
   Serial.print("GLASS:");
   Serial.print(glassState, DEC);
@@ -79,6 +79,9 @@ void setup() {
   beep(880,50);
   serving = true;
   delay(1000);
+  beep(880,50);
+  delay(100);
+  beep(880,50);
   digitalWrite(LED_GREEN, LOW);
 }
 
@@ -101,13 +104,13 @@ void loop() {
       delay(100);
       return;
   }
-  
+
   #ifdef DEBUG_SERIAL
   if (serving && !digitalRead(BTN_2) ) {
       motorCopo.moveTo(motorCopo.currentPosition());
       glassPositionSnapshot = motorCopo.currentPosition();
   }
-  
+
   if (serving && !digitalRead(BTN_1) ) {
       motorGarrafa.moveTo(motorGarrafa.currentPosition());
       bottlePositionSnapshot = motorGarrafa.currentPosition();
@@ -124,7 +127,7 @@ void loop() {
       Serial.println("Paused");
       #endif
   }
-  
+
 
   if (!digitalRead(BTN_2) && !serving && !loopsAposInverter) {
       walkGarrafa = -walkGarrafa;
