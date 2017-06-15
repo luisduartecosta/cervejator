@@ -25,8 +25,7 @@ AxisState lastBottleState = UNSET;
 void setup() {
   pinMode(ENABLE_1_GARRAFA,OUTPUT);
   pinMode(ENABLE_2_GARRAFA,OUTPUT);
-  pinMode(LED_STATUS,OUTPUT);
-  pinMode(BUTTON, INPUT);
+  pinMode(LED_GREEN,OUTPUT);
 
   motorCopo.setMaxSpeed(200.0);
   motorCopo.setAcceleration(60.0);
@@ -37,12 +36,14 @@ void setup() {
   serving = true;
 
   delay(1000);
-  digitalWrite(LED_STATUS, LOW);
+  digitalWrite(LED_GREEN, LOW);
 }
 
 void loop() {
   digitalWrite(ENABLE_1_GARRAFA, HIGH);  // Enable 1 do driver
   digitalWrite(ENABLE_2_GARRAFA, HIGH);  // Enable 2 do driver
+
+  digitalWrite(LED_GREEN, !serving);
 
   limitExcursion(motorCopo, ENDSTOP_GLASS, GLASS_EXCURSION);
   limitExcursion(motorGarrafa, ENDSTOP_BOTTLE, BOTTLE_EXCURSION);
