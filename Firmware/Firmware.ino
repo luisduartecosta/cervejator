@@ -1,10 +1,14 @@
 #include <AccelStepper.h>
 
+//#define DEBUG_BEEP
+#define DEBUG_SERIAL
+
+
 #include "Pins.h"
 #include "Beep.h"
 #include "Endstop.h"
 
-#define BOTTLE_EXCURSION 19000.0
+#define BOTTLE_EXCURSION 20000.0
 #define GLASS_EXCURSION  5000.0
 
 AccelStepper motorCopo(4, 2, 3, 4, 5);
@@ -23,6 +27,9 @@ AxisState bottleState = UNSET;
 AxisState lastBottleState = UNSET;
 
 void setup() {
+  #ifdef DEBUG_SERIAL
+  Serial.begin(115200);
+  #endif
   pinMode(ENABLE_1_GARRAFA,OUTPUT);
   pinMode(ENABLE_2_GARRAFA,OUTPUT);
   pinMode(LED_GREEN,OUTPUT);
@@ -38,11 +45,33 @@ void setup() {
 
   digitalWrite(LED_GREEN, HIGH);
   digitalWrite(LED_RED, HIGH);
+  #ifdef DEBUG_SERIAL
+  Serial.println("Press btn 1 to continue to endstop routine");
+  while (digitalRead(BTN_1)) {};
+  #endif
+  digitalWrite(LED_GREEN, LOW);
+  digitalWrite(LED_RED, LOW);
   while ( glassState != READY || bottleState != READY )
   {
     resetPosition(motorCopo,ENDSTOP_GLASS,-walkCopo,500,glassState,lastGlassState);
     resetPosition(motorGarrafa,ENDSTOP_BOTTLE,-walkGarrafa,500,bottleState,lastBottleState);
   }
+  digitalWrite(LED_RED, (glassState == READY));
+  digitalWrite(LED_GREEN, (bottleState == READY));
+  
+  #ifdef DEBUG_SERIAL
+  Serial.print("GLASS:");
+  Serial.print(glassState, DEC);
+  Serial.print(" Glass position:");
+  Serial.print(motorCopo.currentPosition(),DEC);
+  Serial.print(" - BOTTLE:");
+  Serial.print(bottleState, DEC);
+  Serial.print(" Bottle position:");
+  Serial.print(motorGarrafa.currentPosition(),DEC);
+  Serial.println("Endstops ready, press btn 1 to continue");
+  while (digitalRead(BTN_1)) {};
+  #endif
+  beep(880,50);
   serving = true;
   delay(1000);
   digitalWrite(LED_GREEN, LOW);
