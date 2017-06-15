@@ -11,8 +11,8 @@
 #define ENDSTOP_1        25
 #define ENDSTOP_2        29
 
-AccelStepper motorCopo(4, 2, 3, 4, 5);   
-AccelStepper motorGarrafa(4, 6, 7, 8, 9); 
+AccelStepper motorCopo(4, 2, 3, 4, 5);
+AccelStepper motorGarrafa(4, 6, 7, 8, 9);
 
 int stepCount = 0;
 bool serving = false;
@@ -26,56 +26,49 @@ void setup() {
   pinMode(ENABLE_2_GARRAFA,OUTPUT);
   pinMode(LED_STATUS,OUTPUT);
   pinMode(BUTTON, INPUT);
-  
-  //motorCopo.setSpeed(300);
-  //motorGarrafa.setSpeed(300);
-  
+
+
   motorCopo.setMaxSpeed(200.0);
   motorCopo.setAcceleration(60.0);
-  
+
   motorGarrafa.setMaxSpeed(1000.0);
   motorGarrafa.setAcceleration(60.0);
-  
+
   serving = true;
 
   delay(1000);
-  //Serial.begin(9600);
   digitalWrite(LED_STATUS, LOW);
 }
 
 void loop() {
   digitalWrite(ENABLE_1_GARRAFA, HIGH);  // Enable 1 do driver
   digitalWrite(ENABLE_2_GARRAFA, HIGH);  // Enable 2 do driver
-  
+
   digitalWrite(LED_STATUS, !serving);
-  
+
   if (serving) {
     motorGarrafa.run();
     motorCopo.run();
-    //Serial.write("servindo... -> Copo:\n");
   }
-  
+
   if (!serving && !digitalRead(BTN_1)) {
       motorCopo.move(walkCopo);
       motorGarrafa.move(walkGarrafa);
       serving = true;
-      //Serial.write("Ordem de servir :\n");
   }
-  
+
   if (!motorGarrafa.distanceToGo() && !motorCopo.distanceToGo()) {
       serving = false;
-      //Serial.write("esperando...\n");
   }
-  
+
   if (!digitalRead(BTN_2) && !serving && !loopsAposInverter) {
       walkGarrafa = -walkGarrafa;
       walkCopo = -walkCopo;
-      //Serial.write("Inverteu\n");
       loopsAposInverter = 200;
       tone(BUZZER,800,200);
       delay(500);
   }
-  
+
   if (loopsAposInverter) {
       loopsAposInverter--;
   }
