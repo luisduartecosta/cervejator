@@ -17,12 +17,13 @@ void limitExcursion(AccelStepper &motor, const int endstopPin, const float maxPo
 
 void resetPosition(AccelStepper &motor, const int endstopPin, const float setupDistance, const float bounceDistance, AxisState &state, AxisState &lastState )
 {
-  lastState = state;
+
   if ( state == READY ) return;
-  if ( !digitalRead(endstopPin) ) { // Endstop pressed
+  if ( !digitalRead(endstopPin) && state != BOUNCING ) { // Endstop pressed
     #ifdef DEBUG_BEEP
     beep(1000,100);
     #endif
+    lastState = state;
     motor.moveTo( motor.currentPosition() ); // Stop motor
     if ( state != ENDSTOP_PRESSED ) {
         state = ENDSTOP_PRESSED;
@@ -33,6 +34,7 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
   }
 
   if ( state == UNSET ) {
+    lastState = state;
     state = SEEKING_ENDSTOP;
     return;
   }
@@ -40,9 +42,11 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
   if ( state == SEEKING_ENDSTOP ) {
       if ( lastState != SEEKING_ENDSTOP ) {
           #ifdef DEBUG_BEEP
-          beep(1000,150);
+          beep(1000,50);
           #endif
-          motor.move(setupDistance); // Talvez trocar por #define
+          motor.moveTo(setupDistance); // Talvez trocar por #define
+          lastState = state;
+          return;
       } else {
           motor.run();
       }
@@ -51,6 +55,8 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
   if ( state == BOUNCING ) {
       if ( lastState != BOUNCING ) {
              motor.move(bounceDistance);
+             lastState = state;
+             return;
       } else {
           if ( motor.distanceToGo() ) {
               motor.run();

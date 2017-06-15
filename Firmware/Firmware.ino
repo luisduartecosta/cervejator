@@ -33,21 +33,22 @@ void setup() {
   motorGarrafa.setMaxSpeed(1000.0);
   motorGarrafa.setAcceleration(60.0);
 
-  while ( glassState != READY && bottleState != READY )
+  digitalWrite(ENABLE_1_GARRAFA, HIGH);
+  digitalWrite(ENABLE_2_GARRAFA, HIGH);
+
+  digitalWrite(LED_GREEN, HIGH);
+  digitalWrite(LED_RED, HIGH);
+  while ( glassState != READY || bottleState != READY )
   {
-    resetPosition(motorCopo,ENDSTOP_GLASS,walkCopo,100,glassState,lastGlassState);
-    resetPosition(motorGarrafa,ENDSTOP_BOTTLE,walkGarrafa,200,bottleState,lastBottleState);
+    resetPosition(motorCopo,ENDSTOP_GLASS,-walkCopo,500,glassState,lastGlassState);
+    resetPosition(motorGarrafa,ENDSTOP_BOTTLE,-walkGarrafa,500,bottleState,lastBottleState);
   }
-
   serving = true;
-
   delay(1000);
   digitalWrite(LED_GREEN, LOW);
 }
 
 void loop() {
-  digitalWrite(ENABLE_1_GARRAFA, HIGH);  // Enable 1 do driver
-  digitalWrite(ENABLE_2_GARRAFA, HIGH);  // Enable 2 do driver
 
   digitalWrite(LED_GREEN, !serving);
 
