@@ -19,8 +19,8 @@ float walkCopo = 6000.0;
 
 AxisState glassState = UNSET;
 AxisState lastGlassState = UNSET;
-AxisState cupState = UNSET;
-AxisState lastCupState = UNSET;
+AxisState bottleState = UNSET;
+AxisState lastBottleState = UNSET;
 
 void setup() {
   pinMode(ENABLE_1_GARRAFA,OUTPUT);
