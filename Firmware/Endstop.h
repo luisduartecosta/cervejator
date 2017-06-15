@@ -18,7 +18,9 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
 {
   lastState = state;
   if ( !digitalRead(endstopPin) ) { // Endstop pressed
+    #ifdef DEBUG_BEEP
     beep(1000,100);
+    #endif
     motor.moveTo( motor.currentPosition() ); // Stop motor
     if ( state != ENDSTOP_PRESSED ) {
         state = ENDSTOP_PRESSED;
@@ -35,7 +37,9 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
 
   if ( state == SEEKING_ENDSTOP ) {
       if ( lastState != SEEKING_ENDSTOP ) {
+          #ifdef DEBUG_BEEP
           beep(1000,150);
+          #endif
           motor.move(setupDistance); // Talvez trocar por #define
       } else {
           motor.run();
@@ -51,7 +55,9 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
           } else {
               motor.setCurrentPosition(0.0f);
               state = READY;
+              #ifdef DEBUG_BEEP
               beep(1200,200);
+              #endif
           }
       }
   }
