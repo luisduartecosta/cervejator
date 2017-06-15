@@ -18,6 +18,7 @@ void limitExcursion(AccelStepper &motor, const int endstopPin, const float maxPo
 void resetPosition(AccelStepper &motor, const int endstopPin, const float setupDistance, const float bounceDistance, AxisState &state, AxisState &lastState )
 {
   lastState = state;
+  if ( state == READY ) return;
   if ( !digitalRead(endstopPin) ) { // Endstop pressed
     #ifdef DEBUG_BEEP
     beep(1000,100);
