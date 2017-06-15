@@ -33,6 +33,12 @@ void setup() {
   motorGarrafa.setMaxSpeed(1000.0);
   motorGarrafa.setAcceleration(60.0);
 
+  while ( glassState != READY && bottleState != READY )
+  {
+    resetPosition(motorCopo,ENDSTOP_GLASS,walkCopo,100,glassState,lastGlassState);
+    resetPosition(motorGarrafa,ENDSTOP_BOTTLE,walkGarrafa,200,bottleState,lastBottleState);
+  }
+
   serving = true;
 
   delay(1000);
