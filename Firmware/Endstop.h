@@ -62,6 +62,7 @@ void resetPosition(AccelStepper &motor, const int endstopPin, const float setupD
               motor.run();
           } else {
               motor.setCurrentPosition(0.0f);
+              motor.moveTo(0.0f);
               state = READY;
               #ifdef DEBUG_BEEP
               beep(1200,200);
