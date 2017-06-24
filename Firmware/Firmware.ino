@@ -18,8 +18,12 @@ AccelStepper motorGarrafa(4, 6, 7, 8, 9);
 
 char commandBuffer[20];
 int posicaoBuffer = 0;
+float tempoPosicaoFinal = 0;
 
 int stepCount = 0;
+bool running = false;
+bool fim = false;
+bool chegouAgoraNaPosicaoFinal = false;
 bool serving = false;
 int loopsAposInverter = 0;
 
@@ -65,8 +69,8 @@ void printInstantPosition() {
 }
 
 void serve() {
-   serving = !serving;
-   if (serving) {
+   running = !running;
+   if (running) {
       beep(800,100);
       beep(1600,100);
    }
@@ -127,7 +131,7 @@ void setup() {
   pinMode(ENABLE_2_GARRAFA,OUTPUT);
   pinMode(LED_GREEN,OUTPUT);
 
-  motorCopo.setMaxSpeed(200.0);
+  motorCopo.setMaxSpeed(800.0);
   motorCopo.setAcceleration(60.0);
 
   motorGarrafa.setMaxSpeed(1000.0);
@@ -163,10 +167,9 @@ void setup() {
   sCmd.addDefaultHandler(defaultHandler);
 
   printInstantPosition();
-  while (digitalRead(BTN_1)) {};
   #endif
   beep(880,50);
-  serving = true;
+  running = true;
   delay(1000);
   beep(880,50);
   delay(100);
@@ -176,38 +179,102 @@ void setup() {
 
 void loop() {
 
-  digitalWrite(LED_GREEN, !serving);
+  digitalWrite(LED_GREEN, !running);
 
   limitExcursion(motorCopo, ENDSTOP_GLASS, GLASS_EXCURSION);
   limitExcursion(motorGarrafa, ENDSTOP_BOTTLE, BOTTLE_EXCURSION);
 
-  if (serving) {
+  if (running) {
     motorGarrafa.run();
     motorCopo.run();
   }
 
-  if (!serving && !digitalRead(BTN_1)) {
-
+  if (!running && !digitalRead(BTN_1) && !serving) {
+    // Stella
+     serving = true;
+     chegouAgoraNaPosicaoFinal = false;
+     fim = false;
+     beep(200,100);
+     delay(100);
+     beep(600,100);
+     delay(100);
+     beep(1200,100);
   }
 
   if (!motorGarrafa.distanceToGo() && !motorCopo.distanceToGo()) {
+      running = false;
+  }
+
+  if (serving) {
+    if (!motorGarrafa.distanceToGo() && !motorGarrafa.currentPosition() && !motorCopo.distanceToGo() && !motorCopo.currentPosition() && !fim) {
+      // 1a Etapa
+      motorGarrafa.move(15000);
+      Serial.println("Subindo garrafa para 15000");
+      motorCopo.move(7000);
+      Serial.println("Subindo copo para 7000");
+    }
+
+    if (!motorCopo.distanceToGo() && motorCopo.currentPosition() == 7000 && motorGarrafa.currentPosition() == 15000) {
+      motorCopo.moveTo(0);
+      Serial.println("Descendo copo para 0");
+    }
+
+    if (!motorGarrafa.distanceToGo() && motorGarrafa.currentPosition() == 15000) {
+      motorGarrafa.move(-1000);
+      Serial.println("Voltando 1000 na garrafa para segurar a vazao");
+    }
+
+    if (!motorGarrafa.distanceToGo() && motorGarrafa.currentPosition() == 14000) {
+      motorGarrafa.move(4000);
+      Serial.println("Subindo garrafa 4000");
+    }
+
+    if (
+      motorGarrafa.currentPosition() == 18000
+      && motorCopo.currentPosition() == 0
+      && !motorGarrafa.distanceToGo()
+      && !chegouAgoraNaPosicaoFinal
+    )
+    {
+       chegouAgoraNaPosicaoFinal = true;
+
+       tempoPosicaoFinal = millis();
+       Serial.println("Chegou no final, aguardando servir 5s");
+    }
+
+    if ( chegouAgoraNaPosicaoFinal && (millis() - tempoPosicaoFinal) > 3000 && !fim)
+    {
+       motorGarrafa.moveTo(0);
+       fim = true;
+       Serial.println("Voltando a garrafa para o inicio");
+    }
+
+    if (fim && !motorGarrafa.distanceToGo() && !motorCopo.distanceToGo()) {
       serving = false;
+      beep(200,100);
+       delay(100);
+       beep(600,100);
+       delay(100);
+       beep(1200,100);
+       Serial.println("Fim!");
+    }
+    running = true;
   }
 
 
-  if (!digitalRead(BTN_2) && !serving && !loopsAposInverter) {
+  if (!digitalRead(BTN_2) && !running && !loopsAposInverter) {
 
   }
 
   if (loopsAposInverter) {
       loopsAposInverter--;
   }
-  
+
   sCmd.readSerial();
-  
+
 //  if (Serial.available() > 0) {
 //     commandBuffer[posicaoBuffer] = Serial.read();
-//     
+//
 //     if ( commandBuffer[posicaoBuffer] == '\r' ) {
 //         commandBuffer[posicaoBuffer] = '\0';
 //         Serial.println("->");
@@ -215,6 +282,6 @@ void loop() {
 //         posicaoBuffer = 0;
 //     } else {
 //         posicaoBuffer++;
-//     }     
+//     }
 //  }
 }
